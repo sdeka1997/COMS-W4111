@@ -1,0 +1,30 @@
+Call:
+GET
+
+URL:
+http://127.0.0.1:5002/api/lahman2019clean/appearances/willite01_BOS_1960
+
+Output:
+{
+    "yearID": "1960",
+    "teamID": "BOS",
+    "lgID": "AL",
+    "playerID": "willite01",
+    "G_all": "113",
+    "GS": "87",
+    "G_batting": "113",
+    "G_defense": "86",
+    "G_p": "0",
+    "G_c": "0",
+    "G_1b": "0",
+    "G_2b": "0",
+    "G_3b": "0",
+    "G_ss": "0",
+    "G_lf": "86",
+    "G_cf": "0",
+    "G_rf": "0",
+    "G_of": "86",
+    "G_dh": "0",
+    "G_ph": "26",
+    "G_pr": "0"
+}

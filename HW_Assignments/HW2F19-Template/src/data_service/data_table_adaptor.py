@@ -7,6 +7,14 @@ import src.data_service.RDBDataTable as RDBDataTable
 # instances.
 _db_tables = {}
 
+_conn = pymysql.connect(
+    host="localhost",
+    port=3306,
+    user="root",
+    password="riceowls",
+    cursorclass=pymysql.cursors.DictCursor
+)
+
 def get_rdb_table(table_name, db_name, key_columns=None, connect_info=None):
     """
 
@@ -53,7 +61,22 @@ def get_databases():
     """
 
     # -- TO IMPLEMENT --
-    pass
+    query = "show databases"
+    res, data = dbutils.run_q(query, conn=_conn)
+    return data
+
+
+def get_tables(database):
+    """
+
+    :return: A list of databases/schema at this endpoint.
+    """
+
+    # -- TO IMPLEMENT --
+    query = f"show tables in {database}"
+    res, data = dbutils.run_q(query, conn=_conn)
+    return data
+
 
 
 

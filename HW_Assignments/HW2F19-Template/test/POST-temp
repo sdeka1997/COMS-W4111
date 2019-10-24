@@ -1,0 +1,15 @@
+Call:
+http://127.0.0.1:5002/api/lahman2019clean/appearances
+
+URL:
+http://127.0.0.1:5002/api/lahman2019clean/appearances
+
+Body:
+{
+	"teamID" : "HOU",
+	"playerID": "sd55",
+	"yearID": "2017"
+}
+
+Output:
+HTTP: 201 - 1 rows successfully inserted.

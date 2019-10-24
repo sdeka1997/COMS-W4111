@@ -1,0 +1,13 @@
+Call:
+PUT
+
+URL:
+http://127.0.0.1:5002/api/lahman2019clean/appearances/willite01_BOS_1960
+
+Body:
+{
+	"GS": "0"
+}
+
+Output:
+HTTP: 201 - Row successfully updated.

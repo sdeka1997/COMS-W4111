@@ -1,0 +1,30 @@
+Call:
+GET
+
+URL:
+http://127.0.0.1:5002/api/lahman2019clean/appearances/sd55
+
+Output:
+{
+    "yearID": "2017",
+    "teamID": "HOU",
+    "lgID": null,
+    "playerID": "sd55",
+    "G_all": null,
+    "GS": null,
+    "G_batting": null,
+    "G_defense": null,
+    "G_p": null,
+    "G_c": null,
+    "G_1b": null,
+    "G_2b": null,
+    "G_3b": null,
+    "G_ss": null,
+    "G_lf": null,
+    "G_cf": null,
+    "G_rf": null,
+    "G_of": null,
+    "G_dh": null,
+    "G_ph": null,
+    "G_pr": null
+}

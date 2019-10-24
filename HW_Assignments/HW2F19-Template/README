@@ -1,0 +1,11 @@
+Welcome to my homework assignment!!
+
+Points of interest:
+1. -> app.py
+Here you will find the implemented solutions to the HW assignment.
+
+2. -> src -> data_service ->
+Here you will find the implemented methods and functions in data_table_adaptor.py and RDBDataTable.py.
+
+3. -> test
+Here you will find tests.py to test functions from data_table_adaptor.py and five .txt files with the test outputs from Postman.

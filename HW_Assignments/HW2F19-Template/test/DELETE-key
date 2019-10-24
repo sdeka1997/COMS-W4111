@@ -1,0 +1,8 @@
+Call:
+DELETE
+
+URL:
+http://127.0.0.1:5002/api/lahman2019clean/appearances/sd55_HOU_2017
+
+Output:
+HTTP: 410 - 1 rows successfully deleted.

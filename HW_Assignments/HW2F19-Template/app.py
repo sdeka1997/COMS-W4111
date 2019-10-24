@@ -1,4 +1,3 @@
-
 ####################################################################################################
 #
 # DO NOT WORRY ABOUT ANY OF THE STUFF IN THIS SECTION. THIS HELPS YOU IMPLEMENT.
@@ -17,6 +16,7 @@ import json
 import src.data_service.data_table_adaptor as dta
 
 import logging
+
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
@@ -42,19 +42,19 @@ def handle_args(args):
     result = {}
 
     if args is not None:
-        for k,v in args.items():
+        for k, v in args.items():
             if type(v) == list:
                 v = v[0]
             result[k] = v
 
     return result
 
+
 # 1. Extract the input information from the requests object.
 # 2. Log the information
 # 3. Return extracted information.
 #
 def log_and_extract_input(method, path_params=None):
-
     path = request.path
     args = dict(request.args)
     data = None
@@ -77,7 +77,7 @@ def log_and_extract_input(method, path_params=None):
     # Get rid of the weird way that Flask sometimes handles query parameters.
     args = handle_args(args)
 
-    inputs =  {
+    inputs = {
         "path": path,
         "method": method,
         "path_params": path_params,
@@ -86,7 +86,7 @@ def log_and_extract_input(method, path_params=None):
         "body": data,
         "url": url,
         "base_url": base_url
-        }
+    }
 
     # Pull out the fields list as a separate element.
     if args and args.get('fields', None):
@@ -114,6 +114,7 @@ def log_response(path, rsp):
 
 def get_field_list(inputs):
     return inputs.get('fields', None)
+
 
 def generate_error(status_code, ex=None, msg=None):
     """
@@ -146,8 +147,7 @@ def generate_error(status_code, ex=None, msg=None):
 # This function performs a basic health check. We will flesh this out.
 @application.route("/health", methods=["GET"])
 def health_check():
-
-    rsp_data = { "status": "healthy", "time": str(datetime.now()) }
+    rsp_data = {"status": "healthy", "time": str(datetime.now())}
     rsp_str = json.dumps(rsp_data)
     rsp = Response(rsp_str, status=200, content_type="application/json")
     return rsp
@@ -163,14 +163,15 @@ def demo(parameter):
     :return: None
     """
 
-    inputs = log_and_extract_input(demo, { "parameter": parameter })
+    inputs = log_and_extract_input(demo, {"parameter": parameter})
 
     msg = {
-        "/demo received the following inputs" : inputs
+        "/demo received the following inputs": inputs
     }
 
     rsp = Response(json.dumps(msg), status=200, content_type="application/json")
     return rsp
+
 
 ####################################################################################################
 #
@@ -183,29 +184,28 @@ def dbs():
 
     :return: A JSON object/list containing the databases at this endpoint.
     """
-    # -- TO IMPLEMENT --
+    inputs = log_and_extract_input(demo, None)
 
-    # Your code  goes here.
+    result = dta.get_databases()
 
-    # Hint: Implement the function in data_table_adaptor
-    #
-
+    response = Response(json.dumps(result), status=200, content_type="application/json")
+    return response
 
 
 @application.route("/api/databases/<dbname>", methods=["GET"])
 def tbls(dbname):
     """
 
-    :param dbname: The name of a database/sche,a
+    :param dbname: The name of a database/schema
     :return: List of tables in the database.
     """
 
-    inputs = log_and_extract_input(dbs, None)
+    inputs = log_and_extract_input(demo, None)
 
-    # Your code  goes here.
+    result = dta.get_tables(dbname)
 
-    # Hint: Implement the function in data_table_adaptor
-    #
+    response = Response(json.dumps(result), status=200, content_type="application/json")
+    return response
 
 
 @application.route('/api/<dbname>/<resource>/<primary_key>', methods=['GET', 'PUT', 'DELETE'])
@@ -223,33 +223,30 @@ def resource_by_id(dbname, resource, primary_key):
     try:
         # Parse the incoming request into an application specific format.
         context = log_and_extract_input(resource_by_id, (dbname, resource, primary_key))
-
-        #
-        # SOME CODE GOES HERE
-        #
-        # -- TO IMPLEMENT --
+        body = context['body']
+        fields = context.get("fields", None)
+        r_table = dta.get_rdb_table(resource, dbname)
+        key = primary_key.split(_key_delimiter)
 
         if request.method == 'GET':
+            result = r_table.find_by_primary_key(key, field_list=fields)
 
-            #
-            # SOME CODE GOES HERE
-            #
-            # -- TO IMPLEMENT --
-            pass
+            response = Response(json.dumps(result), status=200, content_type="application/json")
+            return response
 
         elif request.method == 'DELETE':
-            #
-            # SOME CODE GOES HERE
-            #
-            # -- TO IMPLEMENT --
-            pass
+            count = r_table.get_row_count()
+            result = r_table.delete_by_key(key)
+            new = r_table.get_row_count()
+
+            response = Response(json.dumps(result), status=200, content_type="application/json")
+            return "HTTP: 410 - " + str(count-new) + " rows successfully deleted."
 
         elif request.method == 'PUT':
-            #
-            # SOME CODE GOES HERE
-            #
-            # -- TO IMPLEMENT --
-            pass
+            result = r_table.update_by_key(key, new_values=body)
+
+            response = Response(json.dumps(result), status=200, content_type="application/json")
+            return "HTTP: 201 - Row successfully updated."
 
     except Exception as e:
         print(e)
@@ -258,31 +255,29 @@ def resource_by_id(dbname, resource, primary_key):
 
 @application.route('/api/<dbname>/<resource_name>', methods=['GET', 'POST'])
 def get_resource(dbname, resource_name):
-
     result = None
 
     try:
         context = log_and_extract_input(get_resource, (dbname, resource_name))
-
-        #
-        # SOME CODE GOES HERE
-        #
-        # -- TO IMPLEMENT --
-
+        print(context)
+        body = context['body']
+        fields = context.get("fields", None)
+        r_table = dta.get_rdb_table(resource_name, dbname)
 
         if request.method == 'GET':
-            #
-            # SOME CODE GOES HERE
-            #
-            # -- TO IMPLEMENT --
-            pass
+            result = r_table.find_by_template(template=context["query_params"], field_list=fields)
+
+            response = Response(json.dumps(result), status=200, content_type="application/json")
+            return response
 
         elif request.method == 'POST':
-            #
-            # SOME CODE GOES HERE
-            #
-            # -- TO IMPLEMENT --
-            pass
+            count = r_table.get_row_count()
+            result = r_table.insert(new_record=body)
+            new = r_table.get_row_count()
+
+            response = Response(json.dumps(result), status=200, content_type="application/json")
+            return "HTTP: 201 - " + str(new - count) + " rows successfully inserted."
+
         else:
             result = "Invalid request."
             return result, 400, {'Content-Type': 'text/plain; charset=utf-8'}
@@ -293,7 +288,6 @@ def get_resource(dbname, resource_name):
 
 @application.route('/api/<dbname>/<parent_name>/<primary_key>/<target_name>', methods=['GET'])
 def get_by_path(dbname, parent_name, primary_key, target_name):
-
     # Do not implement
 
     result = " -- THANK ALY AND ARA -- "
@@ -301,10 +295,8 @@ def get_by_path(dbname, parent_name, primary_key, target_name):
     return result, 501, {'Content-Type': 'application/json; charset=utf-8'}
 
 
-
-
 @application.route('/api/<dbname>/<parent_name>/<primary_key>/<target_name>/<target_key>',
-           methods=['GET'])
+                   methods=['GET'])
 def get_by_path_key(dbname, parent_name, primary_key, target_name, target_key):
     # Do not implement
 
@@ -317,11 +309,11 @@ def get_by_path_key(dbname, parent_name, primary_key, target_name, target_key):
 def handle_error(e, result):
     return "Internal error.", 504, {'Content-Type': 'text/plain; charset=utf-8'}
 
+
 # run the app.
 if __name__ == "__main__":
     # Setting debug to True enables debug output. This line should be
     # removed before deploying a production app.
-
 
     logger.debug("Starting HW2 time: " + str(datetime.now()))
     application.debug = True

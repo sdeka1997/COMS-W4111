@@ -27,6 +27,13 @@ logger = logging.getLogger()
 # Makes pretty print the RDBDataTable rows a little better.
 pd.set_option('display.width', 256)
 pd.set_option('display.max_columns', 12)
+_conn = pymysql.connect(
+    host="localhost",
+    port=3306,
+    user="root",
+    password="riceowls",
+    cursorclass=pymysql.cursors.DictCursor
+)
 
 
 class RDBDataTable():
@@ -42,7 +49,7 @@ class RDBDataTable():
     _default_connect_info = {
         'host': 'localhost',
         'user': 'root',
-        'password': 'dbuserdbuser',
+        'password': 'riceowls',
         'db': 'lahman2019clean',
         'port': 3306
     }
@@ -100,7 +107,7 @@ class RDBDataTable():
         """
         self.get_primary_key_columns()
         self.get_row_count()
-        self.get_sample_rows()
+        # self.get_sample_rows()
         # DFF Remove below.
         self.get_related_resources()
 
@@ -127,6 +134,11 @@ class RDBDataTable():
         """
 
         # -- TO IMPLEMENT --
+        query = "select count(*) from " + self._full_table_name
+        res, data = dbutils.run_q(query, conn=_conn)
+        out = int(list(data[0].values())[0])
+        self._row_count = out
+        return out
 
     def get_primary_key_columns(self):
         """
@@ -135,9 +147,16 @@ class RDBDataTable():
         """
 
         # -- TO IMPLEMENT --
-
-        # Hint. Google "get primary key columns mysql"
-        # Hint. THE ORDER OF THE COLUMNS IN THE KEY DEFINITION MATTERS.
+        query = "select k.COLUMN_NAME " + f"from information_schema.table_constraints t left join " \
+                                          f"information_schema.key_column_usage k USING(constraint_name,table_schema," \
+                                          f"table_name) WHERE t.constraint_type='PRIMARY KEY' AND t.table_schema='" \
+                                          f"{self._db_name}' AND t.table_name='{self._table_name}' ORDER BY " \
+                                          f"ORDINAL_POSITION "
+        res, data = dbutils.run_q(query, conn=_conn)
+        out = []
+        for dic in data:
+            out.append(list(dic.values())[0])
+        self._key_columns = out
 
     def get_sample_rows(self, no_of_rows=_rows_to_print):
         """
